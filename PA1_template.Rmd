@@ -1,25 +1,84 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
 output: 
-  html_document:
-    keep_md: true
+html_document:
+keep_md: true
 ---
 
 
 ## Loading and preprocessing the data
 
-
+```{r results='hide'}
+library("ggplot2")
+library("dplyr")
+activity <- read.csv("activity.csv")
+```
 
 ## What is mean total number of steps taken per day?
 
+```{r echo=TRUE}
+activity.nna <- activity[!is.na(activity$steps),]
+nb.steps <- aggregate(x = activity.nna$steps, by = list(activity.nna$date), FUN = sum)
+qplot(as.Date(nb.steps$Group.1), nb.steps$x) + 
+        geom_bar(stat = "identity") + 
+        labs(title = "Total number of steps taken per day",
+             x = "Time in days",
+             y = "Number of steps")
+mean(nb.steps$x)
+median(nb.steps$x)
 
+```
 
 ## What is the average daily activity pattern?
 
-
+```{r echo=TRUE}
+av.steps.int <- aggregate(x = activity.nna$steps, by = list(activity.nna$interval), FUN = mean)
+ggplot(data = av.steps.int, aes(x = Group.1, y = x)) +
+        geom_line() +
+        labs(title = "Average daily activity pattern",
+             x = "Average of steps",
+             y = "Interval")
+av.steps.int$Group.1[max(av.steps.int$x)]
+```
 
 ## Imputing missing values
 
+```{r}
+nrow(activity[!complete.cases(activity), ])
 
+activity2 <- activity
+activity2$steps[is.na(activity2$steps)] <- mean(activity.nna$steps)
+
+nb.steps2 <- aggregate(x = activity2$steps, by = list(activity2$date), FUN = sum)
+qplot(as.Date(nb.steps2$Group.1), nb.steps2$x) + 
+        geom_bar(stat = "identity") + 
+        labs(title = "Total number of steps taken per day",
+             x = "Time in days",
+             y = "Number of steps")
+```
+
+### It almost doesn't change anything
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+```{r echo=TRUE}
+weekend <- c("samedi", "dimanche")
+
+activity2$date <- as.character(activity2$date)
+activity2$date[weekdays(as.Date(activity$date)) %in% weekend] <- "weekend"
+activity2$date[!(weekdays(as.Date(activity$date)) %in% weekend)] <- "weekday"
+
+activity.end <- filter(activity2, date == "weekend")
+activity.day <- filter(activity2, date == "weekday")
+
+av.steps.int.1 <- aggregate(x = activity.day$steps, by = list(activity.day$interval), FUN = mean)
+av.steps.int.2 <- aggregate(x = activity.end$steps, by = list(activity.end$interval), FUN = mean)
+
+plot(av.steps.int.1$Group.1, av.steps.int.1$x, type = "l", col = "blue", ylim = c(-1, 210), ylab = "", xlab = "")
+par(new = TRUE)
+plot(av.steps.int.2$Group.1, av.steps.int.2$x, type = "l", col = "red", ylim = c(-1, 210), ylab = "", xlab = "")
+title(main = "Differences in activity patterns between weekdays and weekends",
+      xlab = "Interval",
+      ylab = "Steps")
+legend("topright", legend = c("Weekday", "Weekend"), col = c("blue", "red"), lty = 1)
+```
