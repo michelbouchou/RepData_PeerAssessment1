@@ -1,6 +1,6 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
-output: 
+output: md_document
 html_document:
 keep_md: true
 ---
@@ -8,7 +8,7 @@ keep_md: true
 
 ## Loading and preprocessing the data
 
-```{r results='hide'}
+```{r}
 library("ggplot2")
 library("dplyr")
 activity <- read.csv("activity.csv")
@@ -19,11 +19,11 @@ activity <- read.csv("activity.csv")
 ```{r echo=TRUE}
 activity.nna <- activity[!is.na(activity$steps),]
 nb.steps <- aggregate(x = activity.nna$steps, by = list(activity.nna$date), FUN = sum)
-qplot(as.Date(nb.steps$Group.1), nb.steps$x) + 
-        geom_bar(stat = "identity") + 
+p1 <- qplot(nb.steps$x, geom = "histogram") + 
         labs(title = "Total number of steps taken per day",
-             x = "Time in days",
-             y = "Number of steps")
+             x = "Number of steps",
+             y = "Frequency")
+print(p1)
 mean(nb.steps$x)
 median(nb.steps$x)
 
@@ -33,11 +33,12 @@ median(nb.steps$x)
 
 ```{r echo=TRUE}
 av.steps.int <- aggregate(x = activity.nna$steps, by = list(activity.nna$interval), FUN = mean)
-ggplot(data = av.steps.int, aes(x = Group.1, y = x)) +
+p2 <- ggplot(data = av.steps.int, aes(x = Group.1, y = x)) +
         geom_line() +
         labs(title = "Average daily activity pattern",
              x = "Average of steps",
              y = "Interval")
+print(p2)
 av.steps.int$Group.1[max(av.steps.int$x)]
 ```
 
@@ -50,11 +51,11 @@ activity2 <- activity
 activity2$steps[is.na(activity2$steps)] <- mean(activity.nna$steps)
 
 nb.steps2 <- aggregate(x = activity2$steps, by = list(activity2$date), FUN = sum)
-qplot(as.Date(nb.steps2$Group.1), nb.steps2$x) + 
-        geom_bar(stat = "identity") + 
+p3 <- qplot(nb.steps2$x, geom = "histogram") + 
         labs(title = "Total number of steps taken per day",
-             x = "Time in days",
-             y = "Number of steps")
+             x = "Number of steps",
+             y = "Frequency")
+print(p3)
 ```
 
 ### It almost doesn't change anything
