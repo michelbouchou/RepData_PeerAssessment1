@@ -47,18 +47,21 @@ What is the average daily activity pattern?
     p2 <- ggplot(data = av.steps.int, aes(x = Group.1, y = x)) +
             geom_line() +
             labs(title = "Average daily activity pattern",
-                 x = "Average of steps",
-                 y = "Interval")
+                 x = "Interval",
+                 y = "Average of steps")
     print(p2)
 
 ![](PA1_template_files/figure-markdown_strict/unnamed-chunk-3-1.png)
 
-    av.steps.int$Group.1[max(av.steps.int$x)]
+    max.av.steps <- av.steps.int[av.steps.int$x == max(av.steps.int$x),]
+    print(max.av.steps$Group.1)
 
-    ## [1] 1705
+    ## [1] 835
 
 Imputing missing values
 -----------------------
+
+For the missing values, I replace NAs by the mean number of steps.
 
     nrow(activity[!complete.cases(activity), ])
 
@@ -95,12 +98,11 @@ Are there differences in activity patterns between weekdays and weekends?
     av.steps.int.1 <- aggregate(x = activity.day$steps, by = list(activity.day$interval), FUN = mean)
     av.steps.int.2 <- aggregate(x = activity.end$steps, by = list(activity.end$interval), FUN = mean)
 
+
+    par(mfrow = c(1, 2))
     plot(av.steps.int.1$Group.1, av.steps.int.1$x, type = "l", col = "blue", ylim = c(-1, 210), ylab = "", xlab = "")
-    par(new = TRUE)
+    title(main = "Weekdays", xlab = "Interval", ylab = "Steps")
     plot(av.steps.int.2$Group.1, av.steps.int.2$x, type = "l", col = "red", ylim = c(-1, 210), ylab = "", xlab = "")
-    title(main = "Differences in activity patterns between weekdays and weekends",
-          xlab = "Interval",
-          ylab = "Steps")
-    legend("topright", legend = c("Weekday", "Weekend"), col = c("blue", "red"), lty = 1)
+    title(main = "Weekends", xlab = "Interval", ylab = "Steps")
 
 ![](PA1_template_files/figure-markdown_strict/unnamed-chunk-5-1.png)
